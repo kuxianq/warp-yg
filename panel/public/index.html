@@ -49,7 +49,7 @@
           <div>
             <p class="eyebrow">warp-yg warm panel</p>
             <h1>WARP 管理控制台</h1>
-            <p class="sub">保留原仓库 WARP / Socks5 底层能力，在这上面多加一层更顺手的 Web 控制面板。</p>
+            <p class="sub">现在这台机器上的 WARP 和代理基础能力已经配好了，你后面主要在这里看状态、开关代理、改端口、调模式就行。</p>
           </div>
           <div class="hero-actions">
             <button id="refreshBtn">刷新状态</button>
@@ -86,15 +86,15 @@
           <article class="glass-card panel-card accent-warm">
             <div class="section-head">
               <div>
-                <p class="section-kicker">setup</p>
-                <h2>安装向导</h2>
+                <p class="section-kicker">quick start</p>
+                <h2>一键准备代理</h2>
               </div>
-              <span class="section-badge">Socks5-WARP 已支持</span>
+              <span class="section-badge">第一次装坏了时再用</span>
             </div>
-            <p class="muted">先把原本命令行里要做的安装、注册、模式设置、公网转发配置收进口令更少的向导里。</p>
+            <p class="muted">这块主要给“第一次装环境”或者“想重装修复”的情况用。正常使用时，你大多只需要下面的状态、端口和服务控制。</p>
             <div class="form-col">
               <label>
-                安装核心
+                代理类型
                 <select id="installCoreSelect">
                   <option value="socks5">Socks5-WARP（当前已支持）</option>
                   <option value="warp-go" disabled>warp-go（计划支持）</option>
@@ -103,19 +103,19 @@
               </label>
               <div class="split-row">
                 <label>
-                  内部 SOCKS5 端口
+                  本机代理端口
                   <input id="installProxyPortInput" type="number" min="1024" max="65535" placeholder="例如 40123" />
                 </label>
                 <label>
-                  公网转发端口
+                  对外代理端口
                   <input id="installPublicPortInput" type="number" min="1024" max="65535" placeholder="例如 40124" />
                 </label>
               </div>
               <label class="checkbox warm-checkbox">
                 <input id="installEnableForwardInput" type="checkbox" checked />
-                <span>安装时同时启用公网转发</span>
+                <span>同时准备对外代理入口</span>
               </label>
-              <button id="installBtn" class="primary-btn">开始安装 / 收口 Socks5-WARP</button>
+              <button id="installBtn" class="primary-btn">开始准备代理环境</button>
             </div>
           </article>
 
@@ -123,14 +123,14 @@
             <div class="section-head">
               <div>
                 <p class="section-kicker">mode</p>
-                <h2>模式切换</h2>
+                <h2>代理工作方式</h2>
               </div>
               <span class="section-badge muted-badge">即时生效</span>
             </div>
-            <p class="muted">适合在代理模式、普通 WARP、带 DoH/DoT 的模式之间来回切换测试。</p>
+            <p class="muted">这里决定这台机器现在怎么走 WARP。大多数时候保持 `proxy` 就好，其他模式更适合排查或测试时再切。</p>
             <div class="form-col">
               <label>
-                当前模式
+                当前工作方式
                 <select id="modeSelect">
                   <option value="proxy">proxy（SOCKS5）</option>
                   <option value="warp">warp</option>
@@ -151,15 +151,15 @@
             <div class="section-head">
               <div>
                 <p class="section-kicker">ports</p>
-                <h2>内部代理设置</h2>
+                <h2>本机代理设置</h2>
               </div>
             </div>
             <div class="form-col">
               <label>
-                内部 SOCKS5 端口
+                本机代理端口
                 <input id="proxyPortInput" type="number" min="1024" max="65535" placeholder="例如 40123" />
               </label>
-              <button id="saveProxyPortBtn">修改内部端口</button>
+              <button id="saveProxyPortBtn">保存本机端口</button>
             </div>
           </article>
 
@@ -167,14 +167,14 @@
             <div class="section-head">
               <div>
                 <p class="section-kicker">public</p>
-                <h2>公网转发</h2>
+                <h2>对外代理入口</h2>
               </div>
               <span class="section-badge warning-badge">你自己开放端口</span>
             </div>
-            <p class="muted">这里负责写和启停转发服务；真正开放公网端口，默认还是由你自己去放行。</p>
+            <p class="muted">这里决定外部设备通过哪个端口连进来。真正开放公网端口，还是按你的规则由你自己去放行。</p>
             <div class="form-col">
               <label>
-                公网端口
+                对外代理端口
                 <input id="publicPortInput" type="number" min="1024" max="65535" placeholder="例如 40124" />
               </label>
               <div class="btn-row">
@@ -191,7 +191,7 @@
             <div class="section-head">
               <div>
                 <p class="section-kicker">services</p>
-                <h2>服务控制</h2>
+                <h2>服务开关</h2>
               </div>
             </div>
             <div class="service-card glass-subcard">
@@ -222,12 +222,12 @@
             <div class="section-head">
               <div>
                 <p class="section-kicker">account</p>
-                <h2>WARP+ / 注册</h2>
+                <h2>账户与授权</h2>
               </div>
             </div>
             <div class="form-col">
               <label>
-                License Key
+                WARP+ License Key
                 <input id="licenseInput" type="text" placeholder="输入 WARP+ License（可选）" />
               </label>
               <div class="btn-row">
@@ -243,11 +243,11 @@
             <div class="section-head">
               <div>
                 <p class="section-kicker">danger zone</p>
-                <h2>卸载 / 清理</h2>
+                <h2>重置 / 清理</h2>
               </div>
               <span class="section-badge danger-badge">危险操作</span>
             </div>
-            <p class="muted">当前先只针对 Socks5-WARP 这一条能力做清理，需要输入确认短语才能执行。</p>
+            <p class="muted">如果你想把当前代理环境整个清掉、重新来过，就用这里。为了避免误操作，还是需要输入确认短语。</p>
             <div class="form-col">
               <label>
                 确认短语
