@@ -1,12 +1,22 @@
 const state = {
   overview: null,
+  authRequired: false,
 }
 
 const $ = (id) => document.getElementById(id)
 const outputBox = $('outputBox')
 
 function setOutput(text) {
-  outputBox.textContent = text || ''
+  if (outputBox) outputBox.textContent = text || ''
+}
+
+function showAuthScreen(show) {
+  $('authScreen').classList.toggle('hidden', !show)
+  $('appShell').classList.toggle('hidden', show)
+}
+
+function setLoginError(text) {
+  $('loginError').textContent = text || ''
 }
 
 async function api(path, options = {}) {
@@ -17,7 +27,9 @@ async function api(path, options = {}) {
   const res = await fetch(path, { ...options, headers, credentials: 'include' })
   const json = await res.json().catch(() => ({ ok: false, error: '响应解析失败' }))
   if (!res.ok || json.ok === false) {
-    throw new Error(json.error || `请求失败：${res.status}`)
+    const err = new Error(json.error || `请求失败：${res.status}`)
+    err.status = res.status
+    throw err
   }
   return json
 }
@@ -61,23 +73,30 @@ function renderOverview(data) {
 
 async function refreshOverview() {
   const json = await api('/api/overview')
-  $('loginCard').classList.add('hidden')
-  $('logoutBtn').style.display = 'inline-flex'
   renderOverview(json.data)
+  return json.data
 }
 
 async function loadMeta() {
   const metaRes = await fetch('/api/meta', { credentials: 'include' })
   const meta = await metaRes.json()
-  if (meta.authRequired) {
-    try {
-      await refreshOverview()
-    } catch {
-      $('loginCard').classList.remove('hidden')
-      $('logoutBtn').style.display = 'none'
-    }
-  } else {
+  state.authRequired = Boolean(meta.authRequired)
+
+  if (!meta.authRequired) {
+    showAuthScreen(false)
     await refreshOverview()
+    return
+  }
+
+  try {
+    await refreshOverview()
+    showAuthScreen(false)
+  } catch (error) {
+    if (error.status === 401) {
+      showAuthScreen(true)
+      return
+    }
+    throw error
   }
 }
 
@@ -86,14 +105,15 @@ async function login(password) {
     method: 'POST',
     body: JSON.stringify({ password }),
   })
+  setLoginError('')
+  showAuthScreen(false)
   await refreshOverview()
   setOutput('登录成功')
 }
 
 async function logout() {
   await api('/api/logout', { method: 'POST', body: '{}' })
-  $('loginCard').classList.remove('hidden')
-  $('logoutBtn').style.display = 'none'
+  showAuthScreen(true)
   setOutput('已退出登录')
 }
 
@@ -148,7 +168,15 @@ function wireActions() {
 }
 
 function showError(err) {
+  if (err?.status === 401) {
+    showAuthScreen(true)
+    setLoginError('密码不正确，或者登录态已失效。')
+    return
+  }
   setOutput(err.message || String(err))
+  if ($('loginError') && !$('authScreen').classList.contains('hidden')) {
+    setLoginError(err.message || String(err))
+  }
   console.error(err)
 }
 

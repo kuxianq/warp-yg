@@ -7,224 +7,310 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <div class="page">
-      <header class="hero">
-        <div>
-          <p class="eyebrow">warp-yg fork panel</p>
+    <div class="bg-blur blur-a"></div>
+    <div class="bg-blur blur-b"></div>
+    <div class="bg-grid"></div>
+
+    <section id="authScreen" class="auth-screen hidden">
+      <div class="auth-shell glass-card">
+        <div class="auth-side">
+          <p class="eyebrow">warm glass console</p>
           <h1>WARP 管理面板</h1>
-          <p class="sub">查看状态、安装 Socks5-WARP、切模式、调端口、管公网转发、看日志和做清理。</p>
+          <p class="auth-copy">
+            先登录，再进入控制台。这里会继续保留原仓库 WARP / Socks5 的底层能力，
+            同时给你一个更顺手、更温柔一点的控制界面。
+          </p>
+          <ul class="feature-list">
+            <li>查看 WARP / Socks5 状态</li>
+            <li>安装与切换代理模式</li>
+            <li>调整端口与公网转发</li>
+            <li>查看日志与诊断信息</li>
+          </ul>
         </div>
-        <div class="hero-actions">
-          <button id="refreshBtn">刷新状态</button>
-          <button id="connectBtn" class="success">连接 WARP</button>
-          <button id="disconnectBtn" class="danger">断开 WARP</button>
-          <button id="logoutBtn">退出登录</button>
-        </div>
-      </header>
-
-      <section id="loginCard" class="card hidden">
-        <h2>面板登录</h2>
-        <p class="muted">当前面板启用了密码保护，请先登录。</p>
-        <form id="loginForm" class="form-row">
-          <input id="passwordInput" type="password" placeholder="输入 PANEL_PASSWORD" />
-          <button type="submit">登录</button>
-        </form>
-      </section>
-
-      <section class="grid stats-grid">
-        <article class="card stat">
-          <span class="label">WARP 状态</span>
-          <strong id="warpState">-</strong>
-          <small id="warpMode">-</small>
-        </article>
-        <article class="card stat">
-          <span class="label">内部代理端口</span>
-          <strong id="proxyPort">-</strong>
-          <small>Cloudflare 官方 SOCKS5</small>
-        </article>
-        <article class="card stat">
-          <span class="label">公网转发端口</span>
-          <strong id="publicPort">-</strong>
-          <small id="publicForwardState">-</small>
-        </article>
-        <article class="card stat">
-          <span class="label">出口 IP</span>
-          <strong id="proxyIp">-</strong>
-          <small id="directIp">-</small>
-        </article>
-      </section>
-
-      <section class="grid two-col">
-        <article class="card">
-          <h2>安装向导（V2）</h2>
-          <p class="muted">第二阶段先完整支持 Socks5-WARP；`warp-go` / `wgcf` 的面板化安装后续继续补。</p>
-          <div class="form-col">
+        <div class="auth-panel glass-card inner-card">
+          <div class="brand-mark">🫧</div>
+          <h2>进入面板</h2>
+          <p class="muted center">输入访问密码后才能进入控制台。</p>
+          <form id="loginForm" class="form-col auth-form">
             <label>
-              安装核心
-              <select id="installCoreSelect">
-                <option value="socks5">Socks5-WARP（当前已支持）</option>
-                <option value="warp-go" disabled>warp-go（计划支持）</option>
-                <option value="wgcf" disabled>wgcf（计划支持）</option>
+              面板密码
+              <input id="passwordInput" type="password" placeholder="输入面板密码" autocomplete="current-password" />
+            </label>
+            <button type="submit" class="primary-btn">登录</button>
+          </form>
+          <p id="loginError" class="error-text"></p>
+        </div>
+      </div>
+    </section>
+
+    <div id="appShell" class="app-shell hidden">
+      <div class="page">
+        <header class="hero glass-card">
+          <div>
+            <p class="eyebrow">warp-yg warm panel</p>
+            <h1>WARP 管理控制台</h1>
+            <p class="sub">保留原仓库 WARP / Socks5 底层能力，在这上面多加一层更顺手的 Web 控制面板。</p>
+          </div>
+          <div class="hero-actions">
+            <button id="refreshBtn">刷新状态</button>
+            <button id="connectBtn" class="soft-success">连接 WARP</button>
+            <button id="disconnectBtn" class="soft-danger">断开 WARP</button>
+            <button id="logoutBtn">退出登录</button>
+          </div>
+        </header>
+
+        <section class="status-strip glass-card">
+          <div class="strip-item">
+            <span class="strip-label">WARP 状态</span>
+            <strong id="warpState">-</strong>
+            <small id="warpMode">-</small>
+          </div>
+          <div class="strip-item">
+            <span class="strip-label">内部代理端口</span>
+            <strong id="proxyPort">-</strong>
+            <small>Cloudflare 官方 SOCKS5</small>
+          </div>
+          <div class="strip-item">
+            <span class="strip-label">公网转发端口</span>
+            <strong id="publicPort">-</strong>
+            <small id="publicForwardState">-</small>
+          </div>
+          <div class="strip-item">
+            <span class="strip-label">代理出口</span>
+            <strong id="proxyIp">-</strong>
+            <small id="directIp">-</small>
+          </div>
+        </section>
+
+        <section class="grid two-col">
+          <article class="glass-card panel-card accent-warm">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">setup</p>
+                <h2>安装向导</h2>
+              </div>
+              <span class="section-badge">Socks5-WARP 已支持</span>
+            </div>
+            <p class="muted">先把原本命令行里要做的安装、注册、模式设置、公网转发配置收进口令更少的向导里。</p>
+            <div class="form-col">
+              <label>
+                安装核心
+                <select id="installCoreSelect">
+                  <option value="socks5">Socks5-WARP（当前已支持）</option>
+                  <option value="warp-go" disabled>warp-go（计划支持）</option>
+                  <option value="wgcf" disabled>wgcf（计划支持）</option>
+                </select>
+              </label>
+              <div class="split-row">
+                <label>
+                  内部 SOCKS5 端口
+                  <input id="installProxyPortInput" type="number" min="1024" max="65535" placeholder="例如 40123" />
+                </label>
+                <label>
+                  公网转发端口
+                  <input id="installPublicPortInput" type="number" min="1024" max="65535" placeholder="例如 40124" />
+                </label>
+              </div>
+              <label class="checkbox warm-checkbox">
+                <input id="installEnableForwardInput" type="checkbox" checked />
+                <span>安装时同时启用公网转发</span>
+              </label>
+              <button id="installBtn" class="primary-btn">开始安装 / 收口 Socks5-WARP</button>
+            </div>
+          </article>
+
+          <article class="glass-card panel-card accent-rose">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">mode</p>
+                <h2>模式切换</h2>
+              </div>
+              <span class="section-badge muted-badge">即时生效</span>
+            </div>
+            <p class="muted">适合在代理模式、普通 WARP、带 DoH/DoT 的模式之间来回切换测试。</p>
+            <div class="form-col">
+              <label>
+                当前模式
+                <select id="modeSelect">
+                  <option value="proxy">proxy（SOCKS5）</option>
+                  <option value="warp">warp</option>
+                  <option value="warp+doh">warp+doh</option>
+                  <option value="warp+dot">warp+dot</option>
+                  <option value="tunnel_only">tunnel_only</option>
+                  <option value="doh">doh</option>
+                  <option value="dot">dot</option>
+                </select>
+              </label>
+              <button id="saveModeBtn">应用模式</button>
+            </div>
+          </article>
+        </section>
+
+        <section class="grid two-col">
+          <article class="glass-card panel-card">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">ports</p>
+                <h2>内部代理设置</h2>
+              </div>
+            </div>
+            <div class="form-col">
+              <label>
+                内部 SOCKS5 端口
+                <input id="proxyPortInput" type="number" min="1024" max="65535" placeholder="例如 40123" />
+              </label>
+              <button id="saveProxyPortBtn">修改内部端口</button>
+            </div>
+          </article>
+
+          <article class="glass-card panel-card">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">public</p>
+                <h2>公网转发</h2>
+              </div>
+              <span class="section-badge warning-badge">你自己开放端口</span>
+            </div>
+            <p class="muted">这里负责写和启停转发服务；真正开放公网端口，默认还是由你自己去放行。</p>
+            <div class="form-col">
+              <label>
+                公网端口
+                <input id="publicPortInput" type="number" min="1024" max="65535" placeholder="例如 40124" />
+              </label>
+              <div class="btn-row">
+                <button id="enableForwardBtn" class="soft-success">启用 / 更新公网转发</button>
+                <button id="restartForwardBtn">重启公网转发</button>
+                <button id="disableForwardBtn" class="soft-danger">停用公网转发</button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="grid two-col">
+          <article class="glass-card panel-card">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">services</p>
+                <h2>服务控制</h2>
+              </div>
+            </div>
+            <div class="service-card glass-subcard">
+              <div>
+                <strong>warp-svc</strong>
+                <small class="muted" id="warpSvcState">-</small>
+              </div>
+              <div class="btn-row compact-btns">
+                <button data-service="warp-svc" data-action="start" class="service-action">启动</button>
+                <button data-service="warp-svc" data-action="restart" class="service-action">重启</button>
+                <button data-service="warp-svc" data-action="stop" class="service-action soft-danger">停止</button>
+              </div>
+            </div>
+            <div class="service-card glass-subcard">
+              <div>
+                <strong>warp-socks5-public.service</strong>
+                <small class="muted" id="forwardSvcState">-</small>
+              </div>
+              <div class="btn-row compact-btns">
+                <button data-service="warp-socks5-public.service" data-action="start" class="service-action">启动</button>
+                <button data-service="warp-socks5-public.service" data-action="restart" class="service-action">重启</button>
+                <button data-service="warp-socks5-public.service" data-action="stop" class="service-action soft-danger">停止</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="glass-card panel-card">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">account</p>
+                <h2>WARP+ / 注册</h2>
+              </div>
+            </div>
+            <div class="form-col">
+              <label>
+                License Key
+                <input id="licenseInput" type="text" placeholder="输入 WARP+ License（可选）" />
+              </label>
+              <div class="btn-row">
+                <button id="saveLicenseBtn">写入 License</button>
+                <button id="registerNewBtn">重新注册账户</button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="grid two-col">
+          <article class="glass-card panel-card danger-panel">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">danger zone</p>
+                <h2>卸载 / 清理</h2>
+              </div>
+              <span class="section-badge danger-badge">危险操作</span>
+            </div>
+            <p class="muted">当前先只针对 Socks5-WARP 这一条能力做清理，需要输入确认短语才能执行。</p>
+            <div class="form-col">
+              <label>
+                确认短语
+                <input id="uninstallConfirmInput" type="text" placeholder="输入 DELETE SOCKS5 WARP" />
+              </label>
+              <label class="checkbox warm-checkbox">
+                <input id="uninstallPurgeInput" type="checkbox" />
+                <span>同时卸载 cloudflare-warp 软件包</span>
+              </label>
+              <button id="uninstallBtn" class="soft-danger">执行卸载 / 清理</button>
+            </div>
+          </article>
+
+          <article class="glass-card panel-card">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">logs</p>
+                <h2>日志与诊断</h2>
+              </div>
+            </div>
+            <div class="form-row compact">
+              <select id="logServiceSelect">
+                <option value="warp-svc">warp-svc</option>
+                <option value="warp-socks5-public.service">warp-socks5-public.service</option>
               </select>
-            </label>
-            <label>
-              内部 SOCKS5 端口
-              <input id="installProxyPortInput" type="number" min="1024" max="65535" placeholder="例如 40123" />
-            </label>
-            <label>
-              公网转发端口（可选）
-              <input id="installPublicPortInput" type="number" min="1024" max="65535" placeholder="例如 40124" />
-            </label>
-            <label class="checkbox">
-              <input id="installEnableForwardInput" type="checkbox" checked />
-              <span>安装时同时启用公网转发</span>
-            </label>
-            <button id="installBtn" class="success">开始安装 / 收口 Socks5-WARP</button>
-          </div>
-        </article>
-
-        <article class="card">
-          <h2>模式切换</h2>
-          <div class="form-col">
-            <label>
-              模式
-              <select id="modeSelect">
-                <option value="proxy">proxy（SOCKS5）</option>
-                <option value="warp">warp</option>
-                <option value="warp+doh">warp+doh</option>
-                <option value="warp+dot">warp+dot</option>
-                <option value="tunnel_only">tunnel_only</option>
-                <option value="doh">doh</option>
-                <option value="dot">dot</option>
-              </select>
-            </label>
-            <button id="saveModeBtn">应用模式</button>
-          </div>
-        </article>
-      </section>
-
-      <section class="grid two-col">
-        <article class="card">
-          <h2>内部代理设置</h2>
-          <div class="form-col">
-            <label>
-              内部 SOCKS5 端口
-              <input id="proxyPortInput" type="number" min="1024" max="65535" placeholder="例如 40123" />
-            </label>
-            <button id="saveProxyPortBtn">修改内部端口</button>
-          </div>
-        </article>
-
-        <article class="card">
-          <h2>公网转发</h2>
-          <div class="form-col">
-            <label>
-              公网端口
-              <input id="publicPortInput" type="number" min="1024" max="65535" placeholder="例如 40124" />
-            </label>
-            <p class="muted">建议你先在防火墙白名单里只放行自己的 IP，再启用这里的公网入口。</p>
-            <div class="btn-row">
-              <button id="enableForwardBtn" class="success">启用 / 更新公网转发</button>
-              <button id="restartForwardBtn">重启公网转发</button>
-              <button id="disableForwardBtn" class="danger">停用公网转发</button>
+              <input id="logLinesInput" type="number" min="20" max="500" value="120" />
+              <button id="loadLogsBtn">读取日志</button>
             </div>
-          </div>
-        </article>
-      </section>
+            <pre id="logsBox" class="terminal"></pre>
+          </article>
+        </section>
 
-      <section class="grid two-col">
-        <article class="card">
-          <h2>服务控制</h2>
-          <div class="service-card">
+        <section class="glass-card panel-card">
+          <div class="section-head">
             <div>
-              <strong>warp-svc</strong>
-              <small class="muted" id="warpSvcState">-</small>
-            </div>
-            <div class="btn-row">
-              <button data-service="warp-svc" data-action="start" class="service-action">启动</button>
-              <button data-service="warp-svc" data-action="restart" class="service-action">重启</button>
-              <button data-service="warp-svc" data-action="stop" class="service-action danger">停止</button>
+              <p class="section-kicker">inspect</p>
+              <h2>诊断详情</h2>
             </div>
           </div>
-          <div class="service-card">
+          <div class="tabs">
+            <button class="tab active" data-target="statusRaw">状态</button>
+            <button class="tab" data-target="settingsRaw">设置</button>
+            <button class="tab" data-target="traceRaw">代理 Trace</button>
+            <button class="tab" data-target="listenersRaw">监听端口</button>
+            <button class="tab" data-target="accountRaw">账户</button>
+          </div>
+          <pre id="statusRaw" class="terminal tab-panel active"></pre>
+          <pre id="settingsRaw" class="terminal tab-panel"></pre>
+          <pre id="traceRaw" class="terminal tab-panel"></pre>
+          <pre id="listenersRaw" class="terminal tab-panel"></pre>
+          <pre id="accountRaw" class="terminal tab-panel"></pre>
+        </section>
+
+        <section class="glass-card panel-card">
+          <div class="section-head">
             <div>
-              <strong>warp-socks5-public.service</strong>
-              <small class="muted" id="forwardSvcState">-</small>
-            </div>
-            <div class="btn-row">
-              <button data-service="warp-socks5-public.service" data-action="start" class="service-action">启动</button>
-              <button data-service="warp-socks5-public.service" data-action="restart" class="service-action">重启</button>
-              <button data-service="warp-socks5-public.service" data-action="stop" class="service-action danger">停止</button>
+              <p class="section-kicker">feedback</p>
+              <h2>操作结果</h2>
             </div>
           </div>
-        </article>
-
-        <article class="card">
-          <h2>WARP+ / 注册</h2>
-          <div class="form-col">
-            <label>
-              License Key
-              <input id="licenseInput" type="text" placeholder="输入 WARP+ License（可选）" />
-            </label>
-            <div class="btn-row">
-              <button id="saveLicenseBtn">写入 License</button>
-              <button id="registerNewBtn">重新注册账户</button>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <section class="grid two-col">
-        <article class="card danger-card">
-          <h2>卸载 / 清理</h2>
-          <p class="muted">这是危险操作，只会先做 Socks5-WARP 路线的清理。</p>
-          <div class="form-col">
-            <label>
-              确认短语
-              <input id="uninstallConfirmInput" type="text" placeholder="输入 DELETE SOCKS5 WARP" />
-            </label>
-            <label class="checkbox">
-              <input id="uninstallPurgeInput" type="checkbox" />
-              <span>同时卸载 cloudflare-warp 软件包</span>
-            </label>
-            <button id="uninstallBtn" class="danger">执行卸载 / 清理</button>
-          </div>
-        </article>
-
-        <article class="card">
-          <h2>日志与诊断</h2>
-          <div class="form-row compact">
-            <select id="logServiceSelect">
-              <option value="warp-svc">warp-svc</option>
-              <option value="warp-socks5-public.service">warp-socks5-public.service</option>
-            </select>
-            <input id="logLinesInput" type="number" min="20" max="500" value="120" />
-            <button id="loadLogsBtn">读取日志</button>
-          </div>
-          <pre id="logsBox" class="terminal"></pre>
-        </article>
-      </section>
-
-      <section class="card">
-        <h2>诊断详情</h2>
-        <div class="tabs">
-          <button class="tab active" data-target="statusRaw">状态</button>
-          <button class="tab" data-target="settingsRaw">设置</button>
-          <button class="tab" data-target="traceRaw">代理 Trace</button>
-          <button class="tab" data-target="listenersRaw">监听端口</button>
-          <button class="tab" data-target="accountRaw">账户</button>
-        </div>
-        <pre id="statusRaw" class="terminal tab-panel active"></pre>
-        <pre id="settingsRaw" class="terminal tab-panel"></pre>
-        <pre id="traceRaw" class="terminal tab-panel"></pre>
-        <pre id="listenersRaw" class="terminal tab-panel"></pre>
-        <pre id="accountRaw" class="terminal tab-panel"></pre>
-      </section>
-
-      <section class="card">
-        <h2>操作结果</h2>
-        <pre id="outputBox" class="terminal small"></pre>
-      </section>
+          <pre id="outputBox" class="terminal small"></pre>
+        </section>
+      </div>
     </div>
 
     <script src="/app.js" defer></script>
