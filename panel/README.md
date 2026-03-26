@@ -2,7 +2,7 @@
 
 这是在 `warp-yg` fork 基础上新增的一层 Web 面板，目标是把原本以脚本/命令行为主的 WARP 管理流程，收口成一个可视化控制台。
 
-## 当前功能（V1）
+## 当前功能（V2）
 
 - 查看 WARP 当前连接状态
 - 查看当前模式、内部 SOCKS5 端口、公网转发端口
@@ -13,6 +13,10 @@
 - 写入 WARP+ license
 - 重新注册 WARP 账户
 - 查看 `warp-svc` 与 `warp-socks5-public.service` 日志
+- 新增 **Socks5-WARP 安装向导**（安装/补齐 cloudflare-warp、注册账户、设置端口、连接、可选启用公网转发）
+- 新增 **服务控制区**（直接启停/重启 `warp-svc` 与公网转发服务）
+- 新增 **危险操作区**（带确认短语的 Socks5-WARP 清理/卸载）
+- 登录鉴权从前一版的前端 token 传递改成 **密码 + HttpOnly Cookie Session**
 
 ## 启动方式
 
