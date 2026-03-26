@@ -63,28 +63,6 @@ body {
   padding: 26px;
 }
 
-.lang-pill {
-  margin-left: auto;
-  width: fit-content;
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  background: rgba(246, 249, 255, .92);
-  border-radius: 999px;
-  border: 1px solid rgba(77, 112, 183, .10);
-  font-size: 12px;
-}
-.lang-pill span {
-  padding: 5px 10px;
-  border-radius: 999px;
-  color: var(--muted);
-}
-.lang-pill .active {
-  background: rgba(47, 128, 255, 0.10);
-  color: var(--primary);
-  font-weight: 600;
-}
-
 .auth-title-row {
   display: flex;
   gap: 14px;

@@ -12,10 +12,6 @@
 
     <section id="authScreen" class="auth-screen hidden">
       <div class="auth-card">
-        <div class="lang-pill">
-          <span class="active">中文</span>
-          <span>EN</span>
-        </div>
         <div class="auth-title-row">
           <div class="auth-icon">🛡️</div>
           <div>
@@ -39,7 +35,6 @@
         <header class="topbar" id="overview">
           <div>
             <h1>WARP Panel</h1>
-            <p>现在这台机器上的 WARP 和代理基础能力已经配好了，你后面主要在这里看状态、开关代理、改端口、调模式就行。</p>
           </div>
           <div class="topbar-actions">
             <button id="refreshBtn">刷新状态</button>
@@ -87,12 +82,12 @@
                 当前工作方式
                 <select id="modeSelect">
                   <option value="proxy">代理模式（最常用）</option>
-                  <option value="warp">普通 WARP</option>
-                  <option value="warp+doh">WARP + DoH</option>
-                  <option value="warp+dot">WARP + DoT</option>
-                  <option value="tunnel_only">仅隧道</option>
-                  <option value="doh">仅 DoH</option>
-                  <option value="dot">仅 DoT</option>
+                  <option value="warp">普通 WARP（直接走 WARP）</option>
+                  <option value="warp+doh">WARP + DoH（带加密 DNS）</option>
+                  <option value="warp+dot">WARP + DoT（带加密 DNS）</option>
+                  <option value="tunnel_only">仅隧道（不代理 DNS）</option>
+                  <option value="doh">仅 DoH（只处理 DNS）</option>
+                  <option value="dot">仅 DoT（只处理 DNS）</option>
                 </select>
               </label>
               <button id="saveModeBtn">保存工作方式</button>

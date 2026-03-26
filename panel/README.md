@@ -1,25 +1,58 @@
-# WARP Panel (V1)
+# WARP Panel · V0.2
 
-这是在 `warp-yg` fork 基础上新增的一层 Web 面板，目标是把原本以脚本/命令行为主的 WARP 管理流程，收口成一个可视化控制台。
+这是在 `warp-yg` fork 基础上新增的一层 Web 管理面板。目标不是替代原仓库的 WARP / Socks5 底层能力，而是**在保留原能力的前提下，额外提供一个更直观的控制台**，方便通过网页完成状态查看、代理开关、端口调整、日志排查和基础运维操作。
 
-## 当前功能（V2）
+---
 
-- 查看 WARP 当前连接状态
-- 查看当前模式、内部 SOCKS5 端口、公网转发端口
-- 查看直连 IP / 代理出口 IP / Cloudflare trace
-- 切换模式（`proxy` / `warp` / `warp+doh` / `warp+dot` / `tunnel_only` 等）
-- 修改内部代理端口
-- 启用 / 更新 / 重启 / 停用公网转发服务
-- 写入 WARP+ license
+## 当前功能
+
+### 1. 登录与首页
+- 独立登录页（密码登录后进入面板）
+- 首页总览卡片：
+  - WARP 状态
+  - 本机代理端口
+  - 对外代理端口
+  - 代理出口 IP
+
+### 2. 常用操作
+- 打开代理
+- 关闭代理
+- 切换工作方式
+- 保存工作方式
+
+### 3. 端口和连接信息
+- 设置本机代理端口
+- 设置对外代理端口
+- 启用 / 更新 / 重启 / 停用对外代理
+- 区分“本机使用端口”和“外部设备接入端口”
+
+### 4. 账户与授权
+- 写入 WARP+ License
 - 重新注册 WARP 账户
-- 查看 `warp-svc` 与 `warp-socks5-public.service` 日志
-- 新增 **Socks5-WARP 安装向导**（安装/补齐 cloudflare-warp、注册账户、设置端口、连接、可选启用公网转发）
-- 新增 **服务控制区**（直接启停/重启 `warp-svc` 与公网转发服务）
-- 新增 **危险操作区**（带确认短语的 Socks5-WARP 清理/卸载）
-- 登录鉴权从前一版的前端 token 传递改成 **密码 + HttpOnly Cookie Session**
 
-## 启动方式
+### 5. 准备 / 修复代理环境
+- 一键准备 Socks5-WARP 环境
+- 自动补齐：
+  - `cloudflare-warp`
+  - WARP 注册
+  - 代理模式
+  - 端口设置
+  - 公网转发（按配置启用）
 
+### 6. 日志与诊断
+- 查看 `warp-svc` 日志
+- 查看 `warp-socks5-public.service` 日志
+- 查看监听端口 / trace / 设置详情
+
+### 7. 重置 / 清理
+- 支持带确认短语的清理动作
+- 可选同时卸载 `cloudflare-warp`
+
+---
+
+## 启动 / 部署方式
+
+### 本地运行
 ```bash
 cd panel
 npm install
@@ -27,38 +60,95 @@ PORT=43123 PANEL_PASSWORD='your-password' npm start
 ```
 
 然后访问：
-
 ```text
 http://<server-ip>:43123
 ```
 
-## systemd 示例
-
-仓库里附带了一个示例文件：
+### systemd 部署
+仓库里附带示例文件：
 
 ```text
 panel/warp-panel.service.example
 ```
 
-你后续部署时可以按这个模板改成正式服务。
+当前推荐部署参数：
+- 服务名：`warp-panel.service`
+- 默认端口：`43123`
+- 部署目录示例：`/opt/warp-yg/panel`
+
+### 脚本雏形
+当前已附带部署脚本雏形：
+
+```text
+panel/scripts/deploy.sh
+```
+
+支持命令：
+```bash
+bash panel/scripts/deploy.sh deploy [source_dir]
+bash panel/scripts/deploy.sh update [source_dir]
+bash panel/scripts/deploy.sh rollback <backup>
+bash panel/scripts/deploy.sh list
+```
+
+---
+
+## 实现说明
+
+### 前端
+- 原生 HTML / CSS / JavaScript
+- 零构建依赖，直接由 Express 静态托管
+- 当前以“小白先能用”为优先，首屏聚焦常用操作，其他功能逐步收进折叠区域
+
+### 后端
+- Node.js + Express
+- 主要通过本机命令控制和读取状态：
+  - `warp-cli`
+  - `systemctl`
+  - `journalctl`
+  - `ss`
+  - `curl`
+
+### 当前后端能力
+- 全局操作锁（避免并发操作打架）
+- 幂等处理（重复执行尽量返回 noop 而不是报错）
+- 标准状态对象输出
+- 审计日志记录（本地 JSONL）
+- 统一日志接口
+
+### 当前约束
+- 当前主要完整支持 **Socks5-WARP** 路线
+- `warp-go` / `wgcf` 仍保留为后续扩展方向，不在本版本强行接入
+
+---
 
 ## 安全说明
 
-- **强烈建议设置 `PANEL_PASSWORD`**，不要裸开到公网。
-- 如果面板公网开放，建议再配一层 Nginx / Cloudflare Access / 防火墙白名单。
-- 公网 SOCKS5 转发本身仍应通过 UFW / 安全组做白名单控制。
+- 面板默认采用密码登录
+- **不要把面板直接裸露到公网且使用弱密码**
+- 如果面板需要公网访问，建议至少配一层：
+  - Nginx Basic Auth
+  - Cloudflare Access
+  - 或 IP 白名单
+- 公网 Socks5 代理端口本身建议继续通过防火墙 / 安全组限制来源
+- 当前版本涉及系统配置、服务启停、软件安装，因此运行账户需要具备对应权限
 
-## 当前实现说明
-
-- 后端：Node.js + Express
-- 前端：原生 HTML/CSS/JS（零构建）
-- 控制方式：调用 `warp-cli`、`systemctl`、`journalctl`、`ss` 等本机命令
+---
 
 ## 后续可扩展
 
-- 登录会话持久化
-- 面板多用户 / RBAC
-- 更细的网络诊断页
-- 配置变更审计日志
-- 面板部署脚本 / systemd 服务模板
-- 适配 `warp-go` / `wgcf` 更细粒度的模式控制
+- 更完整的小白首页 / 引导流程
+- 连接信息卡一键复制优化
+- 更细的健康检查字段
+- 审计日志轮转与可视化
+- 更强的登录会话控制
+- `warp-go` / `wgcf` 接入
+- 更完整的部署/更新/回滚自动化
+- 面板内更细的故障自检与修复建议
+
+---
+
+## 当前版本定位
+
+**V0.2** 的定位是：
+> 已具备可用的 Web 控制台雏形，能完成 WARP / Socks5 的日常查看、开关、端口调整、日志排查和基础环境修复，但仍处于持续打磨阶段。
