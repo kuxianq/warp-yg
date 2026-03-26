@@ -35,49 +35,15 @@
     </section>
 
     <div id="appShell" class="app-shell hidden">
-      <aside class="sidebar">
-        <div class="brand-card">
-          <div class="brand-mark">W</div>
-          <div>
-            <strong>WARP Panel</strong>
-            <p>代理管理控制台</p>
-          </div>
-        </div>
-
-        <nav class="nav-list">
-          <a href="#overview" class="nav-item active">总览看板</a>
-          <a href="#quick-actions" class="nav-item">快速操作</a>
-          <a href="#ports" class="nav-item">代理端口</a>
-          <a href="#services" class="nav-item">服务开关</a>
-          <a href="#account" class="nav-item">账户授权</a>
-          <a href="#logs" class="nav-item">日志诊断</a>
-          <a href="#danger" class="nav-item">重置清理</a>
-        </nav>
-
-        <div class="sidebar-tip">
-          <strong>使用提醒</strong>
-          <p>这套面板默认帮你管理 WARP 和 Socks5。涉及公网端口放行时，仍然按你的规则由你自己开放。</p>
-        </div>
-
-        <div class="sidebar-actions">
-          <button id="refreshBtn">刷新状态</button>
-          <button id="logoutBtn">退出登录</button>
-        </div>
-      </aside>
-
-      <main class="main-panel">
+      <main class="main-panel full-width">
         <header class="topbar" id="overview">
           <div>
-            <h1>总览看板</h1>
-            <p>这里主要看代理状态、端口、出口 IP，以及最常用的开关操作。</p>
+            <h1>WARP Panel</h1>
+            <p>现在这台机器上的 WARP 和代理基础能力已经配好了，你后面主要在这里看状态、开关代理、改端口、调模式就行。</p>
           </div>
-          <div class="topbar-right">
-            <label class="mini-select">
-              当前状态
-              <select disabled>
-                <option>已部署</option>
-              </select>
-            </label>
+          <div class="topbar-actions">
+            <button id="refreshBtn">刷新状态</button>
+            <button id="logoutBtn">退出登录</button>
           </div>
         </header>
 
@@ -90,7 +56,7 @@
           <article class="soft-card metric-card">
             <span class="metric-label">本机代理端口</span>
             <strong id="proxyPort">-</strong>
-            <small>给本机或转发层使用</small>
+            <small>本机程序走的 SOCKS5</small>
           </article>
           <article class="soft-card metric-card">
             <span class="metric-label">对外代理端口</span>
@@ -98,18 +64,18 @@
             <small id="publicForwardState">-</small>
           </article>
           <article class="soft-card metric-card">
-            <span class="metric-label">当前出口</span>
+            <span class="metric-label">代理出口</span>
             <strong id="proxyIp">-</strong>
             <small id="directIp">-</small>
           </article>
         </section>
 
-        <section class="content-grid" id="quick-actions">
+        <section class="content-grid two-col-grid">
           <article class="soft-card section-card">
             <div class="section-header">
               <div>
-                <h2>快速操作</h2>
-                <p>如果你只是想“打开代理 / 关闭代理 / 改工作方式”，主要用这里就够了。</p>
+                <h2>快捷操作</h2>
+                <p>平时最常用的就是这块：打开代理、关闭代理、切换工作方式。</p>
               </div>
             </div>
             <div class="action-stack">
@@ -133,15 +99,15 @@
             </div>
           </article>
 
-          <article class="soft-card section-card">
+          <article class="soft-card section-card large-setup-card">
             <div class="section-header">
               <div>
-                <h2>一键准备代理</h2>
-                <p>这块主要给“重装 / 修复 / 第一次初始化”用。正常情况下，你不需要经常点它。</p>
+                <h2>代理准备与端口设置</h2>
+                <p>这块把“一键准备代理”和“对外代理入口”放到一起了。第一次装、想重装、或者想改端口，都主要用这里。</p>
               </div>
-              <span class="chip">Socks5-WARP 已支持</span>
+              <span class="chip">自定义端口</span>
             </div>
-            <div class="form-grid">
+            <div class="form-grid three-grid">
               <label>
                 代理类型
                 <select id="installCoreSelect">
@@ -158,51 +124,24 @@
                 对外代理端口
                 <input id="installPublicPortInput" type="number" min="1024" max="65535" placeholder="例如 40124" />
               </label>
-              <label class="checkbox-row">
-                <input id="installEnableForwardInput" type="checkbox" checked />
-                <span>同时准备对外代理入口</span>
-              </label>
             </div>
-            <button id="installBtn" class="primary-btn">开始准备代理环境</button>
-          </article>
-        </section>
-
-        <section class="content-grid" id="ports">
-          <article class="soft-card section-card">
-            <div class="section-header">
-              <div>
-                <h2>本机代理设置</h2>
-                <p>这里改的是 WARP 在本机监听的端口。</p>
-              </div>
-            </div>
-            <label>
-              本机代理端口
-              <input id="proxyPortInput" type="number" min="1024" max="65535" placeholder="例如 40123" />
+            <label class="checkbox-row top-gap">
+              <input id="installEnableForwardInput" type="checkbox" checked />
+              <span>同时准备对外代理入口</span>
             </label>
-            <button id="saveProxyPortBtn">保存本机端口</button>
-          </article>
-
-          <article class="soft-card section-card">
-            <div class="section-header">
-              <div>
-                <h2>对外代理入口</h2>
-                <p>给外部设备用的端口在这里控制。真正开放公网端口时，还是按你的规则由你自己去放行。</p>
+            <div class="action-stack top-gap">
+              <button id="installBtn" class="primary-btn wide-btn">开始准备代理环境</button>
+              <div class="inline-buttons split-buttons">
+                <button id="saveProxyPortBtn">保存本机端口</button>
+                <button id="enableForwardBtn">启用 / 更新对外代理</button>
+                <button id="restartForwardBtn">重启对外代理</button>
+                <button id="disableForwardBtn" class="ghost-danger">停用对外代理</button>
               </div>
-              <span class="chip warning-chip">端口放行由你自己做</span>
-            </div>
-            <label>
-              对外代理端口
-              <input id="publicPortInput" type="number" min="1024" max="65535" placeholder="例如 40124" />
-            </label>
-            <div class="inline-buttons">
-              <button id="enableForwardBtn" class="primary-btn">启用 / 更新对外代理</button>
-              <button id="restartForwardBtn">重启对外代理</button>
-              <button id="disableForwardBtn" class="ghost-danger">停用对外代理</button>
             </div>
           </article>
         </section>
 
-        <section class="content-grid" id="services">
+        <section class="content-grid two-col-grid">
           <article class="soft-card section-card">
             <div class="section-header">
               <div>
@@ -233,9 +172,7 @@
               </div>
             </div>
           </article>
-        </section>
 
-        <section class="content-grid" id="account">
           <article class="soft-card section-card">
             <div class="section-header">
               <div>
@@ -254,8 +191,8 @@
           </article>
         </section>
 
-        <section class="content-grid" id="logs">
-          <article class="soft-card section-card wide-card">
+        <section class="content-grid two-col-grid">
+          <article class="soft-card section-card wide-card" id="logs">
             <div class="section-header">
               <div>
                 <h2>日志与诊断</h2>
@@ -295,30 +232,40 @@
           </article>
         </section>
 
-        <section class="content-grid" id="danger">
-          <article class="soft-card section-card wide-card danger-card">
+        <section class="content-grid two-col-grid" id="danger">
+          <article class="soft-card section-card wide-card danger-card better-danger-card">
             <div class="section-header">
               <div>
                 <h2>重置 / 清理</h2>
-                <p>如果你想把当前代理环境整个清掉、重新来过，就用这里。这个是危险操作。</p>
+                <p>如果你想把当前代理环境整个清掉、重新来过，就用这里。这个是危险操作，建议只在确认要重装时再点。</p>
               </div>
               <span class="chip danger-chip">危险操作</span>
             </div>
-            <div class="form-grid">
-              <label>
-                确认短语
-                <input id="uninstallConfirmInput" type="text" placeholder="输入 DELETE SOCKS5 WARP" />
-              </label>
-              <label class="checkbox-row">
-                <input id="uninstallPurgeInput" type="checkbox" />
-                <span>同时卸载 cloudflare-warp 软件包</span>
-              </label>
+            <div class="danger-layout">
+              <div class="danger-note">
+                <strong>这一步会做什么</strong>
+                <ul>
+                  <li>断开当前代理</li>
+                  <li>停用对外代理入口</li>
+                  <li>按你的勾选决定是否卸载软件包</li>
+                </ul>
+              </div>
+              <div class="danger-actions">
+                <label>
+                  确认短语
+                  <input id="uninstallConfirmInput" type="text" placeholder="输入 DELETE SOCKS5 WARP" />
+                </label>
+                <label class="checkbox-row">
+                  <input id="uninstallPurgeInput" type="checkbox" />
+                  <span>同时卸载 cloudflare-warp 软件包</span>
+                </label>
+                <button id="uninstallBtn" class="ghost-danger wide-btn">执行重置 / 清理</button>
+              </div>
             </div>
-            <button id="uninstallBtn" class="ghost-danger">执行重置 / 清理</button>
           </article>
         </section>
 
-        <section class="content-grid">
+        <section class="content-grid two-col-grid">
           <article class="soft-card section-card wide-card">
             <div class="section-header">
               <div>
