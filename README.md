@@ -1,5 +1,7 @@
 ### 相关说明及注意点请查看[warp系列视频说明](https://www.youtube.com/playlist?list=PLMgly2AulGG-WqPXPkHlqWVSfQ3XjHNw8) [更新日志](https://ygkkk.blogspot.com/2022/09/cfwarp-script.html)
 
+> Fork 说明：此 fork 额外新增了 `panel/` Web 管理面板，用于可视化查看 WARP 状态、切换模式、修改代理端口、公网转发和查看日志。详见 `panel/README.md`。
+
 ### 一、WARP多功能一键脚本，支持纯IPV4、纯IPV6的VPS直接安装，主流linux系统均支持
 ```
 bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/warp-yg/main/CFwarp.sh)

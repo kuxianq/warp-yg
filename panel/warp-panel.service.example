@@ -1,0 +1,16 @@
+[Unit]
+Description=WARP Panel Web UI
+After=network-online.target warp-svc.service warp-socks5-public.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/warp-yg/panel
+Environment=PORT=43123
+Environment=PANEL_PASSWORD=change-me
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

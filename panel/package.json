@@ -1,0 +1,14 @@
+{
+  "name": "warp-yg-panel",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Web panel for managing Cloudflare WARP modes, proxy ports, public forward, and diagnostics",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
