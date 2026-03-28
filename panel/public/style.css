@@ -206,6 +206,7 @@ button:hover {
 }
 .overview-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .two-col-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.diagnostic-grid { align-items: start; }
 .wide-card { grid-column: 1 / -1; }
 
 .soft-card {
@@ -231,6 +232,7 @@ button:hover {
   gap: 14px;
   margin-bottom: 14px;
 }
+.compact-header { margin-bottom: 10px; }
 .section-header h2 { margin: 0 0 4px; font-size: 26px; }
 .section-header p { margin: 0; line-height: 1.6; }
 
@@ -243,10 +245,20 @@ button:hover {
   color: var(--primary);
   white-space: nowrap;
 }
+.muted-chip {
+  background: rgba(64, 87, 133, 0.06);
+  border-color: rgba(64, 87, 133, 0.10);
+  color: var(--muted);
+}
 .danger-chip {
   background: var(--danger-soft);
   border-color: rgba(232, 112, 112, 0.18);
   color: #b35d67;
+}
+.warn-btn {
+  background: rgba(255, 189, 96, 0.16);
+  border-color: rgba(255, 189, 96, 0.28);
+  color: #8d5d15;
 }
 
 .action-stack,
@@ -317,6 +329,33 @@ button:hover {
   border-radius: 16px;
   padding: 14px;
   margin-top: 12px;
+}
+
+.diagnostic-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(248,250,255,0.76));
+}
+.diagnostic-stack {
+  display: grid;
+  gap: 12px;
+}
+.diagnostic-row {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(64, 87, 133, 0.10);
+  background: rgba(255,255,255,0.62);
+  display: grid;
+  gap: 5px;
+}
+.diagnostic-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.diagnostic-row strong {
+  font-size: 20px;
+}
+.diagnostic-row small {
+  color: var(--muted);
+  line-height: 1.55;
 }
 
 .terminal {

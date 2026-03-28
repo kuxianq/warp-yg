@@ -204,7 +204,7 @@
             <div class="section-header">
               <div>
                 <h2>账户与授权</h2>
-                <p>如果你有 WARP+ 的 License，可以在这里写进去。没有的话正常也能用。</p>
+                <p>如果你有 WARP+ 的 License，可以在这里写进去。重新注册属于偏危险动作，建议确认后再点。</p>
               </div>
             </div>
             <label>
@@ -213,12 +213,38 @@
             </label>
             <div class="inline-buttons">
               <button id="saveLicenseBtn">写入 License</button>
-              <button id="registerNewBtn">重新注册账户</button>
+              <button id="registerNewBtn" class="warn-btn">重新注册账户</button>
             </div>
           </article>
         </section>
 
-        <section class="content-grid two-col-grid">
+        <section class="content-grid two-col-grid diagnostic-grid">
+          <article class="soft-card section-card diagnostic-card">
+            <div class="section-header compact-header">
+              <div>
+                <h2>快速诊断</h2>
+                <p>先看这一排，通常就能判断问题大概在哪。</p>
+              </div>
+            </div>
+            <div class="diagnostic-stack">
+              <div class="diagnostic-row">
+                <span class="diagnostic-label">连接判断</span>
+                <strong id="diagConnection">-</strong>
+                <small id="diagConnectionHint">-</small>
+              </div>
+              <div class="diagnostic-row">
+                <span class="diagnostic-label">公网入口</span>
+                <strong id="diagForward">-</strong>
+                <small id="diagForwardHint">-</small>
+              </div>
+              <div class="diagnostic-row">
+                <span class="diagnostic-label">下一步建议</span>
+                <strong id="diagNextAction">-</strong>
+                <small id="diagNextHint">-</small>
+              </div>
+            </div>
+          </article>
+
           <article class="soft-card section-card wide-card" id="logs">
             <div class="section-header">
               <div>
@@ -295,11 +321,12 @@
 
         <section class="content-grid two-col-grid">
           <article class="soft-card section-card wide-card">
-            <div class="section-header">
+            <div class="section-header compact-header">
               <div>
-                <h2>操作结果</h2>
-                <p>你刚才点击的动作，都会在这里回显结果。</p>
+                <h2>最近一次动作回响</h2>
+                <p>这里会记录你刚刚点了什么，以及系统最后给你的回话。</p>
               </div>
+              <span id="outputMeta" class="chip muted-chip">还没有动作</span>
             </div>
             <pre id="outputBox" class="terminal small"></pre>
           </article>

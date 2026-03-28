@@ -8,8 +8,10 @@ const $ = (id) => document.getElementById(id)
 const outputBox = $('outputBox')
 const toastBox = $('toastBox')
 
-function setOutput(text) {
+function setOutput(text, meta = '') {
   if (outputBox) outputBox.textContent = text || ''
+  const metaEl = $('outputMeta')
+  if (metaEl) metaEl.textContent = meta || '最近没有新动作'
 }
 
 function showToast(text, type = 'info') {
@@ -110,6 +112,8 @@ function renderOverview(data) {
   const proxyIp = data.warp.proxyIp || '-'
   const directIp = data.warp.directIp || '-'
   const forwardState = `${data.publicForward.service.active} / ${data.publicForward.service.enabled}`
+  const warpActive = data.warp.service.active === 'active'
+  const forwardActive = data.publicForward.service.active === 'active'
 
   $('warpState').textContent = stateView.title
   $('warpMode').textContent = `${modeText} · ${stateView.sub}`
@@ -127,6 +131,13 @@ function renderOverview(data) {
   $('summaryProxyPill').textContent = `本机 ${proxyPort}`
   $('summaryForwardPill').textContent = `公网 ${publicPort} · ${data.publicForward.service.active}`
   $('summaryExitPill').textContent = `出口 ${proxyIp}`
+
+  $('diagConnection').textContent = stateView.title
+  $('diagConnectionHint').textContent = warpActive ? 'WARP 服务在线，当前代理链可用。' : '先检查 warp-svc 或点击刷新状态。'
+  $('diagForward').textContent = forwardActive ? `公网 ${publicPort} 已在线` : '公网转发未开启'
+  $('diagForwardHint').textContent = forwardActive ? `当前公网入口为 ${publicPort}，本机转发到 ${proxyPort}。` : '如果只本机使用代理，可以先不启用公网转发。'
+  $('diagNextAction').textContent = warpActive ? '优先看日志与模式切换' : '优先尝试启动或重启服务'
+  $('diagNextHint').textContent = warpActive ? '要排障时先读 warp-svc 日志，再看监听端口。' : '先检查服务状态，再确认端口与公网转发。'
 
   $('installProxyPortInput').value = data.warp.settings.proxyPort || 40123
   $('installPublicPortInput').value = data.publicForward.config?.publicPort || 40124
@@ -177,14 +188,14 @@ async function login(password) {
   showAuthScreen(false)
   await refreshOverview()
   await loadLogs().catch(() => {})
-  setOutput('登录成功')
+  setOutput('登录成功', `登录成功 · ${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`)
   showToast('登录成功', 'success')
 }
 
 async function logout() {
   await api('/api/logout', { method: 'POST', body: '{}' })
   showAuthScreen(true)
-  setOutput('已退出登录')
+  setOutput('已退出登录', `退出登录 · ${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`)
   showToast('已退出登录', 'info')
 }
 
@@ -195,7 +206,8 @@ async function act(path, body = null, successText = '操作成功') {
   })
   if (json.data) renderOverview(json.data)
   const message = json.output || successText
-  setOutput(message)
+  const actionLabel = path.replace('/api/', '').replaceAll('/', ' · ')
+  setOutput(message, `${actionLabel} · ${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`)
   showToast(message, 'success')
   return json
 }
@@ -323,7 +335,7 @@ function showError(err) {
     return
   }
   const message = err.message || String(err)
-  setOutput(message)
+  setOutput(message, `错误回响 · ${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`)
   showToast(message, 'error')
   if ($('loginError') && !$('authScreen').classList.contains('hidden')) {
     setLoginError(message)
