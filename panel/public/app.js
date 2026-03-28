@@ -1,13 +1,49 @@
 const state = {
   overview: null,
   authRequired: false,
+  toastTimer: null,
 }
 
 const $ = (id) => document.getElementById(id)
 const outputBox = $('outputBox')
+const toastBox = $('toastBox')
 
 function setOutput(text) {
   if (outputBox) outputBox.textContent = text || ''
+}
+
+function showToast(text, type = 'info') {
+  if (!toastBox) return
+  toastBox.textContent = text || ''
+  toastBox.className = `toast-box toast-${type}`
+  clearTimeout(state.toastTimer)
+  state.toastTimer = setTimeout(() => {
+    toastBox.className = 'toast-box hidden'
+    toastBox.textContent = ''
+  }, 2400)
+}
+
+function setButtonBusy(btn, busy, busyText = '处理中...') {
+  if (!btn) return
+  if (busy) {
+    if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent
+    btn.disabled = true
+    btn.classList.add('is-busy')
+    btn.textContent = busyText
+    return
+  }
+  btn.disabled = false
+  btn.classList.remove('is-busy')
+  if (btn.dataset.originalText) btn.textContent = btn.dataset.originalText
+}
+
+async function withBusy(btn, task, busyText) {
+  setButtonBusy(btn, true, busyText)
+  try {
+    return await task()
+  } finally {
+    setButtonBusy(btn, false)
+  }
 }
 
 function showAuthScreen(show) {
@@ -68,21 +104,32 @@ function formatWarpState(statusRaw) {
 function renderOverview(data) {
   state.overview = data
   const stateView = formatWarpState(data.warp.status || '')
-  $('warpState').textContent = stateView.title
-  $('warpMode').textContent = `${formatWarpMode(data.warp.settings.mode)} · ${stateView.sub}`
-  $('proxyPort').textContent = data.warp.settings.proxyPort || '-'
-  $('publicPort').textContent = data.publicForward.config?.publicPort || '-'
-  $('publicForwardState').textContent = `${data.publicForward.service.active} / ${data.publicForward.service.enabled}`
-  $('proxyIp').textContent = data.warp.proxyIp || '-'
-  $('directIp').textContent = `直连: ${data.warp.directIp || '-'}`
-  $('warpSvcState').textContent = `${data.warp.service.active} / ${data.warp.service.enabled}`
-  $('forwardSvcState').textContent = `${data.publicForward.service.active} / ${data.publicForward.service.enabled}`
+  const modeText = formatWarpMode(data.warp.settings.mode)
+  const proxyPort = data.warp.settings.proxyPort || '-'
+  const publicPort = data.publicForward.config?.publicPort || '-'
+  const proxyIp = data.warp.proxyIp || '-'
+  const directIp = data.warp.directIp || '-'
+  const forwardState = `${data.publicForward.service.active} / ${data.publicForward.service.enabled}`
 
-  $('modeSelect').value = data.warp.settings.mode || 'proxy'
-  $('proxyPortInput').value = data.warp.settings.proxyPort || ''
+  $('warpState').textContent = stateView.title
+  $('warpMode').textContent = `${modeText} · ${stateView.sub}`
+  $('proxyPort').textContent = proxyPort
+  $('publicPort').textContent = publicPort
+  $('publicForwardState').textContent = forwardState
+  $('proxyIp').textContent = proxyIp
+  $('directIp').textContent = `直连: ${directIp}`
+  $('warpSvcState').textContent = `${data.warp.service.active} / ${data.warp.service.enabled}`
+  $('forwardSvcState').textContent = forwardState
+
+  $('summaryHeadline').textContent = `${stateView.title} · ${modeText}`
+  $('summarySubline').textContent = `本机 ${proxyPort} · 公网 ${publicPort} · 代理出口 ${proxyIp}`
+  $('summaryModePill').textContent = `模式 ${modeText}`
+  $('summaryProxyPill').textContent = `本机 ${proxyPort}`
+  $('summaryForwardPill').textContent = `公网 ${publicPort} · ${data.publicForward.service.active}`
+  $('summaryExitPill').textContent = `出口 ${proxyIp}`
+
   $('installProxyPortInput').value = data.warp.settings.proxyPort || 40123
   $('installPublicPortInput').value = data.publicForward.config?.publicPort || 40124
-  $('publicPortInput').value = data.publicForward.config?.publicPort || $('installPublicPortInput').value
 
   $('statusRaw').textContent = data.warp.status
   $('settingsRaw').textContent = data.warp.settingsRaw
@@ -131,12 +178,14 @@ async function login(password) {
   await refreshOverview()
   await loadLogs().catch(() => {})
   setOutput('登录成功')
+  showToast('登录成功', 'success')
 }
 
 async function logout() {
   await api('/api/logout', { method: 'POST', body: '{}' })
   showAuthScreen(true)
   setOutput('已退出登录')
+  showToast('已退出登录', 'info')
 }
 
 async function act(path, body = null, successText = '操作成功') {
@@ -145,7 +194,9 @@ async function act(path, body = null, successText = '操作成功') {
     body: body ? JSON.stringify(body) : '{}',
   })
   if (json.data) renderOverview(json.data)
-  setOutput(json.output || successText)
+  const message = json.output || successText
+  setOutput(message)
+  showToast(message, 'success')
   return json
 }
 
@@ -154,57 +205,113 @@ async function loadLogs() {
   const lines = $('logLinesInput').value || '120'
   const json = await api(`/api/logs/${encodeURIComponent(service)}?lines=${encodeURIComponent(lines)}`)
   $('logsBox').textContent = json.text || '当前没有拿到日志输出。'
+  $('logsBox').dataset.service = service
+}
+
+function flashLogs() {
+  const box = $('logsBox')
+  if (!box) return
+  box.classList.remove('flash-log')
+  void box.offsetWidth
+  box.classList.add('flash-log')
+}
+
+async function refreshWithLogs() {
+  await refreshOverview()
+  await loadLogs().catch(() => {})
+  flashLogs()
 }
 
 function wireActions() {
-  $('refreshBtn').addEventListener('click', async () => {
-    await refreshOverview().catch(showError)
-    await loadLogs().catch(() => {})
-  })
-  $('connectBtn').addEventListener('click', async () => {
-    await act('/api/warp/connect', {}, '代理已打开').catch(showError)
+  $('refreshBtn').addEventListener('click', () => withBusy($('refreshBtn'), async () => {
+    await refreshWithLogs()
+    showToast('状态已刷新', 'info')
+  }, '刷新中...').catch(showError))
+
+  $('connectBtn').addEventListener('click', () => withBusy($('connectBtn'), async () => {
+    await act('/api/warp/connect', {}, '代理已打开')
     await new Promise((resolve) => setTimeout(resolve, 2500))
-    await refreshOverview().catch(showError)
-    await loadLogs().catch(() => {})
-  })
-  $('disconnectBtn').addEventListener('click', () => act('/api/warp/disconnect', {}, '代理已关闭').then(() => loadLogs().catch(() => {})).catch(showError))
-  $('logoutBtn').addEventListener('click', () => logout().catch(showError))
-  $('saveModeBtn').addEventListener('click', () => act('/api/warp/mode', { mode: $('modeSelect').value }, '工作方式已保存').then(() => loadLogs().catch(() => {})).catch(showError))
-  $('saveProxyPortBtn').addEventListener('click', () => act('/api/warp/proxy-port', { port: Number($('installProxyPortInput').value) }, '本机端口已保存').then(() => {
-    $('proxyPortInput').value = $('installProxyPortInput').value
-    return loadLogs().catch(() => {})
-  }).catch(showError))
-  $('enableForwardBtn').addEventListener('click', () => act('/api/public-forward/enable', {
-    publicPort: Number($('installPublicPortInput').value),
-    targetPort: Number($('installProxyPortInput').value || state.overview?.warp?.settings?.proxyPort),
-  }, '对外代理已启用/更新').then(() => {
-    $('publicPortInput').value = $('installPublicPortInput').value
-    return loadLogs().catch(() => {})
-  }).catch(showError))
-  $('restartForwardBtn').addEventListener('click', () => act('/api/public-forward/restart', {}, '对外代理已重启').then(() => loadLogs().catch(() => {})).catch(showError))
-  $('disableForwardBtn').addEventListener('click', () => act('/api/public-forward/disable', {}, '对外代理已停用').then(() => loadLogs().catch(() => {})).catch(showError))
-  $('saveLicenseBtn').addEventListener('click', () => act('/api/warp/license', { license: $('licenseInput').value.trim() }, 'License 已写入').then(() => loadLogs().catch(() => {})).catch(showError))
-  $('registerNewBtn').addEventListener('click', () => act('/api/warp/register-new', {}, '已重新注册账户').then(() => loadLogs().catch(() => {})).catch(showError))
-  $('loadLogsBtn').addEventListener('click', () => loadLogs().catch(showError))
-  $('installBtn').addEventListener('click', () => act('/api/install/socks5', {
-    proxyPort: Number($('installProxyPortInput').value),
-    publicPort: Number($('installPublicPortInput').value),
-    enablePublicForward: $('installEnableForwardInput').checked,
-  }, '代理环境已准备完成').then(() => {
-    $('proxyPortInput').value = $('installProxyPortInput').value
-    $('publicPortInput').value = $('installPublicPortInput').value
-    return loadLogs().catch(() => {})
-  }).catch(showError))
+    await refreshWithLogs()
+  }, '正在打开...').catch(showError))
+
+  $('disconnectBtn').addEventListener('click', () => withBusy($('disconnectBtn'), async () => {
+    await act('/api/warp/disconnect', {}, '代理已关闭')
+    await refreshWithLogs()
+  }, '正在关闭...').catch(showError))
+
+  $('logoutBtn').addEventListener('click', () => withBusy($('logoutBtn'), () => logout(), '退出中...').catch(showError))
+
+  $('saveModeBtn').addEventListener('click', () => withBusy($('saveModeBtn'), async () => {
+    await act('/api/warp/mode', { mode: $('modeSelect').value }, '工作方式已保存')
+    await refreshWithLogs()
+  }, '保存中...').catch(showError))
+
+  $('saveProxyPortBtn').addEventListener('click', () => withBusy($('saveProxyPortBtn'), async () => {
+    await act('/api/warp/proxy-port', { port: Number($('installProxyPortInput').value) }, '本机端口已保存')
+    await refreshWithLogs()
+  }, '保存中...').catch(showError))
+
+  $('enableForwardBtn').addEventListener('click', () => withBusy($('enableForwardBtn'), async () => {
+    await act('/api/public-forward/enable', {
+      publicPort: Number($('installPublicPortInput').value),
+      targetPort: Number($('installProxyPortInput').value || state.overview?.warp?.settings?.proxyPort),
+    }, '对外代理已启用/更新')
+    await refreshWithLogs()
+  }, '更新中...').catch(showError))
+
+  $('restartForwardBtn').addEventListener('click', () => withBusy($('restartForwardBtn'), async () => {
+    await act('/api/public-forward/restart', {}, '对外代理已重启')
+    await refreshWithLogs()
+  }, '重启中...').catch(showError))
+
+  $('disableForwardBtn').addEventListener('click', () => withBusy($('disableForwardBtn'), async () => {
+    await act('/api/public-forward/disable', {}, '对外代理已停用')
+    await refreshWithLogs()
+  }, '停用中...').catch(showError))
+
+  $('saveLicenseBtn').addEventListener('click', () => withBusy($('saveLicenseBtn'), async () => {
+    await act('/api/warp/license', { license: $('licenseInput').value.trim() }, 'License 已写入')
+    await refreshWithLogs()
+  }, '写入中...').catch(showError))
+
+  $('registerNewBtn').addEventListener('click', () => withBusy($('registerNewBtn'), async () => {
+    await act('/api/warp/register-new', {}, '已重新注册账户')
+    await refreshWithLogs()
+  }, '注册中...').catch(showError))
+
+  $('loadLogsBtn').addEventListener('click', () => withBusy($('loadLogsBtn'), async () => {
+    await loadLogs()
+    flashLogs()
+    showToast('日志已更新', 'info')
+  }, '读取中...').catch(showError))
+
+  $('installBtn').addEventListener('click', () => withBusy($('installBtn'), async () => {
+    await act('/api/install/socks5', {
+      proxyPort: Number($('installProxyPortInput').value),
+      publicPort: Number($('installPublicPortInput').value),
+      enablePublicForward: $('installEnableForwardInput').checked,
+    }, '代理环境已准备完成')
+    await refreshWithLogs()
+  }, '准备中...').catch(showError))
+
   document.querySelectorAll('.service-action').forEach((btn) => {
-    btn.addEventListener('click', () => act(`/api/service/${encodeURIComponent(btn.dataset.service)}/${encodeURIComponent(btn.dataset.action)}`, {}, `${btn.dataset.service} ${btn.dataset.action} done`).then(() => loadLogs().catch(() => {})).catch(showError))
+    btn.addEventListener('click', () => withBusy(btn, async () => {
+      await act(`/api/service/${encodeURIComponent(btn.dataset.service)}/${encodeURIComponent(btn.dataset.action)}`, {}, `${btn.dataset.service} ${btn.dataset.action} done`)
+      await refreshWithLogs()
+    }, `${btn.dataset.action}中...`).catch(showError))
   })
-  $('uninstallBtn').addEventListener('click', () => act('/api/uninstall/socks5', {
-    confirm: $('uninstallConfirmInput').value.trim(),
-    purge: $('uninstallPurgeInput').checked,
-  }, '代理环境已重置 / 清理').then(() => loadLogs().catch(() => {})).catch(showError))
+
+  $('uninstallBtn').addEventListener('click', () => withBusy($('uninstallBtn'), async () => {
+    await act('/api/uninstall/socks5', {
+      confirm: $('uninstallConfirmInput').value.trim(),
+      purge: $('uninstallPurgeInput').checked,
+    }, '代理环境已重置 / 清理')
+    await refreshWithLogs()
+  }, '执行中...').catch(showError))
+
   $('loginForm').addEventListener('submit', (e) => {
     e.preventDefault()
-    login($('passwordInput').value).catch(showError)
+    withBusy(e.submitter || $('loginForm').querySelector('button[type="submit"]'), () => login($('passwordInput').value), '登录中...').catch(showError)
   })
 }
 
@@ -212,11 +319,14 @@ function showError(err) {
   if (err?.status === 401) {
     showAuthScreen(true)
     setLoginError('密码不正确，或者登录态已失效。')
+    showToast('登录态失效，请重新登录', 'error')
     return
   }
-  setOutput(err.message || String(err))
+  const message = err.message || String(err)
+  setOutput(message)
+  showToast(message, 'error')
   if ($('loginError') && !$('authScreen').classList.contains('hidden')) {
-    setLoginError(err.message || String(err))
+    setLoginError(message)
   }
   console.error(err)
 }

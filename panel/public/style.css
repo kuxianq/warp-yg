@@ -159,6 +159,45 @@ button:hover {
 .topbar p { margin: 0; color: var(--muted); }
 .topbar-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
+.summary-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(242,247,255,0.74));
+}
+.summary-copy {
+  display: grid;
+  gap: 6px;
+}
+.summary-copy strong {
+  font-size: 26px;
+}
+.summary-copy small {
+  color: var(--muted);
+}
+.summary-label {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.summary-pill {
+  padding: 9px 13px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.78);
+  border: 1px solid rgba(64, 87, 133, 0.12);
+  font-size: 13px;
+  color: var(--text);
+}
+
 .overview-grid,
 .content-grid {
   display: grid;
@@ -213,12 +252,43 @@ button:hover {
 .action-stack,
 .form-grid,
 .danger-layout,
-.danger-actions {
+.danger-actions,
+.setup-columns,
+.sub-panel-head {
   display: grid;
   gap: 14px;
 }
 .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .three-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.setup-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sub-panel-card {
+  background: rgba(255,255,255,0.58);
+  border: 1px solid rgba(64, 87, 133, 0.10);
+  border-radius: 18px;
+  padding: 18px;
+}
+.sub-panel-card-accent {
+  background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(244,248,255,0.70));
+}
+.sub-panel-head h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.sub-panel-head p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.align-end {
+  align-self: end;
+}
+.checkbox-card {
+  min-height: 52px;
+  border: 1px dashed rgba(64, 87, 133, 0.14);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.52);
+}
 
 .inline-buttons,
 .compact-buttons,
@@ -278,7 +348,19 @@ button:hover {
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-.danger-card { background: rgba(255, 247, 247, 0.76); }
+.danger-card {
+  background: linear-gradient(180deg, rgba(255, 244, 244, 0.92), rgba(255, 248, 248, 0.82));
+  border-color: rgba(232, 112, 112, 0.18);
+}
+.danger-banner {
+  margin-bottom: 14px;
+  border: 1px solid rgba(232, 112, 112, 0.22);
+  background: rgba(232, 112, 112, 0.10);
+  color: #b44f5b;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 13px;
+}
 .better-danger-card .danger-note {
   background: rgba(255,255,255,0.62);
   border: 1px dashed rgba(232, 112, 112, 0.22);
@@ -288,9 +370,64 @@ button:hover {
 .danger-note strong { display: block; margin-bottom: 8px; }
 .danger-note ul { margin: 0; padding-left: 18px; }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+  transform: none;
+  box-shadow: none;
+}
+button.is-busy {
+  position: relative;
+}
+button.is-busy::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.45);
+  border-top-color: currentColor;
+  display: inline-block;
+  animation: spin .7s linear infinite;
+  vertical-align: -2px;
+}
+
+.flash-log {
+  animation: pulseGlow .7s ease;
+}
+
+.toast-box {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 30;
+  min-width: 220px;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(64, 87, 133, 0.12);
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 16px 42px rgba(44, 62, 102, 0.16);
+}
+.toast-success { color: #22674a; border-color: rgba(34, 103, 74, 0.14); }
+.toast-error { color: #b44f5b; border-color: rgba(232, 112, 112, 0.20); }
+.toast-info { color: #315ca8; border-color: rgba(47, 128, 255, 0.18); }
+
 #logsBox:empty::before {
   content: '点击上面的“读取日志”后，这里会显示最近的服务日志。';
   color: var(--muted);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 rgba(47, 128, 255, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(47, 128, 255, 0.10); }
+  100% { box-shadow: none; }
 }
 
 @media (max-width: 1100px) {
@@ -298,13 +435,19 @@ button:hover {
   .two-col-grid,
   .form-grid,
   .three-grid,
-  .danger-layout {
+  .danger-layout,
+  .setup-columns {
     grid-template-columns: 1fr;
   }
 
   .topbar,
-  .service-card {
+  .service-card,
+  .summary-strip {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .summary-pills {
+    justify-content: flex-start;
   }
 }

@@ -35,12 +35,27 @@
         <header class="topbar" id="overview">
           <div>
             <h1>WARP Panel</h1>
+            <p>先看状态，再做操作；成功与失败都会给你明确回响。</p>
           </div>
           <div class="topbar-actions">
             <button id="refreshBtn">刷新状态</button>
             <button id="logoutBtn">退出登录</button>
           </div>
         </header>
+
+        <section class="soft-card summary-strip" aria-label="运行摘要">
+          <div class="summary-copy">
+            <span class="summary-label">当前运行摘要</span>
+            <strong id="summaryHeadline">-</strong>
+            <small id="summarySubline">-</small>
+          </div>
+          <div class="summary-pills">
+            <span id="summaryModePill" class="summary-pill">模式 -</span>
+            <span id="summaryProxyPill" class="summary-pill">本机 -</span>
+            <span id="summaryForwardPill" class="summary-pill">公网 -</span>
+            <span id="summaryExitPill" class="summary-pill">出口 -</span>
+          </div>
+        </section>
 
         <section class="overview-grid">
           <article class="soft-card metric-card highlight-card">
@@ -98,40 +113,57 @@
             <div class="section-header">
               <div>
                 <h2>代理准备与端口设置</h2>
-                <p>这块把“一键准备代理”和“对外代理入口”放到一起了。第一次装、想重装、或者想改端口，都主要用这里。</p>
+                <p>把“本机代理”和“公网转发”拆开看，第一次安装、后续改端口都更不容易搞混。</p>
               </div>
               <span class="chip">自定义端口</span>
             </div>
-            <div class="form-grid three-grid">
-              <label>
-                代理类型
-                <select id="installCoreSelect">
-                  <option value="socks5">Socks5-WARP（推荐）</option>
-                  <option value="warp-go" disabled>warp-go（后续支持）</option>
-                  <option value="wgcf" disabled>wgcf（后续支持）</option>
-                </select>
-              </label>
-              <label>
-                本机代理端口
-                <input id="installProxyPortInput" type="number" min="1024" max="65535" placeholder="例如 40123" />
-              </label>
-              <label>
-                对外代理端口
-                <input id="installPublicPortInput" type="number" min="1024" max="65535" placeholder="例如 40124" />
-              </label>
-            </div>
-            <label class="checkbox-row top-gap">
-              <input id="installEnableForwardInput" type="checkbox" checked />
-              <span>同时准备对外代理入口</span>
-            </label>
-            <div class="action-stack top-gap">
-              <button id="installBtn" class="primary-btn wide-btn">开始准备代理环境</button>
-              <div class="inline-buttons split-buttons">
-                <button id="saveProxyPortBtn">保存本机端口</button>
-                <button id="enableForwardBtn">启用 / 更新对外代理</button>
-                <button id="restartForwardBtn">重启对外代理</button>
-                <button id="disableForwardBtn" class="ghost-danger">停用对外代理</button>
-              </div>
+            <div class="setup-columns">
+              <section class="sub-panel-card">
+                <div class="sub-panel-head">
+                  <h3>本机代理</h3>
+                  <p>准备 WARP Socks5、保存本机监听端口。</p>
+                </div>
+                <div class="form-grid">
+                  <label>
+                    代理类型
+                    <select id="installCoreSelect">
+                      <option value="socks5">Socks5-WARP（推荐）</option>
+                      <option value="warp-go" disabled>warp-go（后续支持）</option>
+                      <option value="wgcf" disabled>wgcf（后续支持）</option>
+                    </select>
+                  </label>
+                  <label>
+                    本机代理端口
+                    <input id="installProxyPortInput" type="number" min="1024" max="65535" placeholder="例如 40123" />
+                  </label>
+                </div>
+                <div class="inline-buttons split-buttons top-gap">
+                  <button id="installBtn" class="primary-btn wide-btn">开始准备代理环境</button>
+                  <button id="saveProxyPortBtn">保存本机端口</button>
+                </div>
+              </section>
+
+              <section class="sub-panel-card sub-panel-card-accent">
+                <div class="sub-panel-head">
+                  <h3>公网转发</h3>
+                  <p>管理公网入口端口、启停对外代理和重启转发服务。</p>
+                </div>
+                <div class="form-grid">
+                  <label>
+                    对外代理端口
+                    <input id="installPublicPortInput" type="number" min="1024" max="65535" placeholder="例如 40124" />
+                  </label>
+                  <label class="checkbox-row align-end checkbox-card">
+                    <input id="installEnableForwardInput" type="checkbox" checked />
+                    <span>同时准备对外代理入口</span>
+                  </label>
+                </div>
+                <div class="inline-buttons split-buttons top-gap">
+                  <button id="enableForwardBtn">启用 / 更新对外代理</button>
+                  <button id="restartForwardBtn">重启对外代理</button>
+                  <button id="disableForwardBtn" class="ghost-danger">停用对外代理</button>
+                </div>
+              </section>
             </div>
           </article>
         </section>
@@ -232,10 +264,11 @@
             <div class="section-header">
               <div>
                 <h2>重置 / 清理</h2>
-                <p>如果你想把当前代理环境整个清掉、重新来过，就用这里。这个是危险操作，建议只在确认要重装时再点。</p>
+                <p>如果你想把当前代理环境整个清掉、重新来过，就用这里。建议先看状态与日志，再决定是否执行。</p>
               </div>
               <span class="chip danger-chip">危险操作</span>
             </div>
+            <div class="danger-banner">⚠️ 这里的操作会影响当前代理连通性，执行前请确认你知道会断开什么。</div>
             <div class="danger-layout">
               <div class="danger-note">
                 <strong>这一步会做什么</strong>
@@ -273,6 +306,8 @@
         </section>
       </main>
     </div>
+
+    <div id="toastBox" class="toast-box hidden" aria-live="polite"></div>
 
     <script src="/app.js" defer></script>
   </body>
